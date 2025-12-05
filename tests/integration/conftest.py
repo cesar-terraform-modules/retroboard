@@ -32,7 +32,9 @@ def docker_compose():
             check=False,  # Don't fail if services are already running
         )
         if result.returncode != 0:
-            print("Warning: docker-compose up returned non-zero exit code. Services may already be running.")
+            print(
+                "Warning: docker-compose up returned non-zero exit code. Services may already be running."
+            )
     else:
         print("Skipping docker-compose setup (services assumed to be already running)")
 
