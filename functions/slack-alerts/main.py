@@ -11,7 +11,9 @@ http = urllib3.PoolManager()
 
 def get_webhook_url():
     """Get webhook URL from environment variable"""
-    return os.environ.get("SLACK_WEBHOOK_URL", "https://hooks.slack.com/services/TEST/WEBHOOK/URL")
+    return os.environ.get(
+        "SLACK_WEBHOOK_URL", "https://hooks.slack.com/services/TEST/WEBHOOK/URL"
+    )
 
 
 class SNSRecord(BaseModel):
