@@ -45,7 +45,76 @@ PORT - Port number for the HTTP server (default: 8000)
 
 ### Running Locally
 
-Each service can be run locally using Python:
+#### Using Docker Compose (Recommended)
+
+The easiest way to run all services locally is using Docker Compose. This will start all services including LocalStack for AWS service emulation:
+
+```bash
+# Start all services
+docker-compose up
+
+# Or run in detached mode
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+This will start:
+- **API Service** on `http://localhost:8000`
+- **Email Summary Worker** on `http://localhost:8001`
+- **Slack Alerts Worker** on `http://localhost:8002`
+- **Frontend App** on `http://localhost:3000`
+- **LocalStack** (AWS emulator) on `http://localhost:4566`
+
+**Initializing LocalStack Resources**:
+
+Before using the services, you need to initialize LocalStack resources (DynamoDB tables, SQS queues, SNS topics). After starting docker-compose, run:
+
+```bash
+# Make sure LocalStack is running, then initialize resources
+./init-localstack.sh
+```
+
+Or manually initialize using AWS CLI:
+
+```bash
+# Create DynamoDB table
+aws --endpoint-url=http://localhost:4566 dynamodb create-table \
+  --table-name boards \
+  --attribute-definitions AttributeName=id,AttributeType=S \
+  --key-schema AttributeName=id,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+
+# Create SQS queue
+aws --endpoint-url=http://localhost:4566 sqs create-queue \
+  --queue-name retroboard-emails \
+  --region us-east-1
+
+# Create SNS topic
+aws --endpoint-url=http://localhost:4566 sns create-topic \
+  --name retroboard-alerts \
+  --region us-east-1
+```
+
+**Note**: Make sure you have AWS CLI installed and configured (credentials can be dummy values for LocalStack).
+
+**Customizing the API URL**:
+
+The frontend app is configured to connect to `http://localhost:8000` by default. To change this, modify the `NEXT_PUBLIC_API_HOST_URL` build argument in `docker-compose.yml` and rebuild the app container:
+
+```bash
+docker-compose build app
+docker-compose up
+```
+
+#### Using Python Directly
+
+Each service can also be run locally using Python:
 
 ```bash
 # API Service
@@ -62,6 +131,35 @@ python main.py
 cd functions/slack-alerts
 pip install -r requirements.txt
 python main.py
+```
+
+#### Building Individual Docker Images
+
+You can also build and run individual services using Docker:
+
+```bash
+# Build API service
+docker build -t retroboard-api ./functions/api
+docker run -p 8000:8000 \
+  -e AWS_REGION=us-east-1 \
+  -e CORS_ALLOWED_ORIGINS=http://localhost:3000 \
+  retroboard-api
+
+# Build Email Summary service
+docker build -t retroboard-email-summary ./functions/email-summary
+docker run -p 8001:8000 \
+  -e SES_SENDER_EMAIL_ADDRESS=noreply@example.com \
+  retroboard-email-summary
+
+# Build Slack Alerts service
+docker build -t retroboard-slack-alerts ./functions/slack-alerts
+docker run -p 8002:8000 \
+  -e SLACK_WEBHOOK_URL=http://localhost:3001/webhook \
+  retroboard-slack-alerts
+
+# Build Frontend app
+docker build -t retroboard-app ./app
+docker run -p 3000:3000 retroboard-app
 ```
 
 ### Testing
@@ -100,7 +198,13 @@ The application uses:
 
 The services are designed to be deployed to AWS ECS:
 
-1. **Container Images**: Each service should be containerized (Dockerfile not included, but standard Python/FastAPI Docker images work)
+1. **Container Images**: Each service includes a Dockerfile and can be built using the provided Dockerfiles:
+   ```bash
+   docker build -t retroboard-api ./functions/api
+   docker build -t retroboard-email-summary ./functions/email-summary
+   docker build -t retroboard-slack-alerts ./functions/slack-alerts
+   docker build -t retroboard-app ./app
+   ```
 2. **ECS Tasks**: Deploy each service as a separate ECS task/service
 3. **Load Balancer**: Use an Application Load Balancer (ALB) to route traffic to the API service
 4. **SQS/SNS Integration**: Configure SQS queues and SNS topics to send HTTP POST requests to the worker services (via EventBridge, ALB, or direct HTTP endpoints)
