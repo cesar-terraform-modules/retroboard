@@ -5,10 +5,15 @@ from fastapi import FastAPI, Request, HTTPException, status
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-WEBHOOK_URL = os.environ["SLACK_WEBHOOK_URL"]
-
 app = FastAPI()
 http = urllib3.PoolManager()
+
+
+def get_webhook_url():
+    """Get webhook URL from environment variable"""
+    return os.environ.get(
+        "SLACK_WEBHOOK_URL", "https://hooks.slack.com/services/TEST/WEBHOOK/URL"
+    )
 
 
 class SNSRecord(BaseModel):
@@ -43,7 +48,7 @@ async def process_slack_alert(request: Request):
         msg = {"text": message}
 
         encoded_msg = json.dumps(msg).encode("utf-8")
-        resp = http.request("POST", WEBHOOK_URL, body=encoded_msg)
+        resp = http.request("POST", get_webhook_url(), body=encoded_msg)
 
         result = {
             "message": message,

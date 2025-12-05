@@ -16,6 +16,11 @@ jobs:
           - email-summary
           - slack-alerts
 
+    env:
+      SES_SENDER_EMAIL_ADDRESS: "sender@example.com"
+      SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/TEST/WEBHOOK/URL"
+      AWS_REGION: "us-east-1"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000"
     steps:
     - uses: actions/checkout@v4
 
