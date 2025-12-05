@@ -14,3 +14,4 @@ builds/
 
 infra/
 build/
+localstack-data/
