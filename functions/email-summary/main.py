@@ -55,6 +55,8 @@ def process_email(event: SQSMessage):
                 )
 
         return {"status": "success", "processed": len(event.Records)}
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error processing email: {str(e)}")
         raise HTTPException(
