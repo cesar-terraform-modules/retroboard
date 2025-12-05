@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 from botocore.errorfactory import ClientError
 
+SENDER_EMAIL = os.environ["SES_SENDER_EMAIL_ADDRESS"]
 TEMPLATE_NAME = "retroboard-summary"
 
 app = FastAPI()
@@ -44,7 +45,7 @@ def process_email(event: SQSMessage):
             print("type(payload)", type(payload))
 
             send_args = {
-                "Source": get_sender_email(),
+                "Source": SENDER_EMAIL,
                 "Template": TEMPLATE_NAME,
                 "Destination": {"ToAddresses": [payload["to"]]},
                 "TemplateData": record.body,
