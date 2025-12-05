@@ -7,8 +7,8 @@ import time
 from pathlib import Path
 from typing import Generator
 
-from helpers.wait_for_services import wait_for_api, wait_for_ui, wait_for_localstack
-from helpers.localstack_init import initialize_localstack_resources
+from .helpers.wait_for_services import wait_for_api, wait_for_ui, wait_for_localstack
+from .helpers.localstack_init import initialize_localstack_resources
 
 
 # Get the project root directory
@@ -19,13 +19,22 @@ DOCKER_COMPOSE_FILE = PROJECT_ROOT / "docker-compose.yml"
 @pytest.fixture(scope="session")
 def docker_compose():
     """Start docker-compose services and clean up after tests."""
-    # Start services
-    print("Starting docker-compose services...")
-    subprocess.run(
-        ["docker-compose", "-f", str(DOCKER_COMPOSE_FILE), "up", "-d"],
-        cwd=PROJECT_ROOT,
-        check=True,
-    )
+    # Check if services are already running (e.g., started by CI workflow)
+    # If SKIP_DOCKER_SETUP is set, assume services are already running
+    skip_setup = os.getenv("SKIP_DOCKER_SETUP", "").lower() in ("1", "true", "yes")
+    
+    if not skip_setup:
+        # Start services
+        print("Starting docker-compose services...")
+        result = subprocess.run(
+            ["docker-compose", "-f", str(DOCKER_COMPOSE_FILE), "up", "-d"],
+            cwd=PROJECT_ROOT,
+            check=False,  # Don't fail if services are already running
+        )
+        if result.returncode != 0:
+            print("Warning: docker-compose up returned non-zero exit code. Services may already be running.")
+    else:
+        print("Skipping docker-compose setup (services assumed to be already running)")
 
     # Wait for services to be ready
     print("Waiting for LocalStack to be ready...")
