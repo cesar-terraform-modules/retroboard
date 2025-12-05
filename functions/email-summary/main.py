@@ -11,7 +11,15 @@ TEMPLATE_NAME = "retroboard-summary"
 
 app = FastAPI()
 
-ses_client = boto3.client("ses")
+# Configure SES client with region and endpoint_url for LocalStack
+aws_region = os.environ.get("AWS_REGION", "us-east-1")
+aws_endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
+
+ses_client_kwargs = {"region_name": aws_region}
+if aws_endpoint_url:
+    ses_client_kwargs["endpoint_url"] = aws_endpoint_url
+
+ses_client = boto3.client("ses", **ses_client_kwargs)
 
 
 class SQSRecord(BaseModel):
