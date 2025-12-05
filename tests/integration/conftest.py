@@ -1,4 +1,5 @@
 """Pytest configuration and fixtures for integration tests."""
+
 import os
 import pytest
 import subprocess
@@ -25,26 +26,26 @@ def docker_compose():
         cwd=PROJECT_ROOT,
         check=True,
     )
-    
+
     # Wait for services to be ready
     print("Waiting for LocalStack to be ready...")
     assert wait_for_localstack(timeout=120), "LocalStack failed to start"
-    
+
     print("Waiting for API to be ready...")
     assert wait_for_api(timeout=120), "API failed to start"
-    
+
     print("Waiting for UI to be ready...")
     assert wait_for_ui(timeout=120), "UI failed to start"
-    
+
     # Initialize LocalStack resources
     print("Initializing LocalStack resources...")
     initialize_localstack_resources()
-    
+
     # Give services a moment to fully initialize
     time.sleep(5)
-    
+
     yield
-    
+
     # Cleanup: stop services
     print("Stopping docker-compose services...")
     subprocess.run(
@@ -70,4 +71,3 @@ def ui_base_url() -> str:
 def localstack_endpoint() -> str:
     """LocalStack endpoint URL."""
     return os.getenv("LOCALSTACK_ENDPOINT", "http://localhost:4566")
-

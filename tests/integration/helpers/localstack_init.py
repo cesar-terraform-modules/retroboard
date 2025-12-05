@@ -1,4 +1,5 @@
 """Helper functions to initialize LocalStack resources."""
+
 import boto3
 import os
 from botocore.exceptions import ClientError
@@ -10,32 +11,28 @@ def initialize_localstack_resources(
 ) -> dict:
     """
     Initialize LocalStack resources (DynamoDB, SQS, SNS, SES).
-    
+
     Args:
         endpoint_url: LocalStack endpoint URL
         region: AWS region
-        
+
     Returns:
         Dictionary with created resource ARNs/URLs
     """
     resources = {}
-    
+
     # Set up boto3 clients
     dynamodb = boto3.client("dynamodb", endpoint_url=endpoint_url, region_name=region)
     sqs = boto3.client("sqs", endpoint_url=endpoint_url, region_name=region)
     sns = boto3.client("sns", endpoint_url=endpoint_url, region_name=region)
     ses = boto3.client("ses", endpoint_url=endpoint_url, region_name=region)
-    
+
     # Create DynamoDB table
     try:
         table_response = dynamodb.create_table(
             TableName="boards",
-            AttributeDefinitions=[
-                {"AttributeName": "id", "AttributeType": "S"}
-            ],
-            KeySchema=[
-                {"AttributeName": "id", "KeyType": "HASH"}
-            ],
+            AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
+            KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
             BillingMode="PAY_PER_REQUEST",
         )
         resources["dynamodb_table"] = table_response["TableDescription"]["TableName"]
@@ -46,7 +43,7 @@ def initialize_localstack_resources(
             resources["dynamodb_table"] = "boards"
         else:
             raise
-    
+
     # Create SQS queue
     try:
         queue_response = sqs.create_queue(QueueName="retroboard-emails")
@@ -60,7 +57,7 @@ def initialize_localstack_resources(
             print(f"SQS queue already exists: {resources['sqs_queue_url']}")
         else:
             raise
-    
+
     # Create SNS topic
     try:
         topic_response = sns.create_topic(Name="retroboard-alerts")
@@ -77,7 +74,7 @@ def initialize_localstack_resources(
                     break
         else:
             raise
-    
+
     # Verify SES email (for local testing)
     try:
         ses.verify_email_identity(EmailAddress="noreply@example.com")
@@ -90,6 +87,5 @@ def initialize_localstack_resources(
             print(f"SES email already verified: {resources['ses_email']}")
         else:
             raise
-    
-    return resources
 
+    return resources
