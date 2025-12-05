@@ -19,7 +19,15 @@ DEFAULT_ID_LENGTH = 10
 
 
 def initialize_db() -> ServiceResource:
-    ddb = boto3.resource("dynamodb")
+    # Configure DynamoDB resource with region and endpoint_url for LocalStack
+    aws_region = os.environ.get("AWS_REGION", "us-east-1")
+    aws_endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
+
+    ddb_kwargs = {"region_name": aws_region}
+    if aws_endpoint_url:
+        ddb_kwargs["endpoint_url"] = aws_endpoint_url
+
+    ddb = boto3.resource("dynamodb", **ddb_kwargs)
     return ddb
 
 

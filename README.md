@@ -182,6 +182,45 @@ pytest tests/ -v
 
 Tests use mocked AWS services (via `moto`) and HTTP clients to verify functionality without requiring actual AWS credentials or external services.
 
+#### Integration Tests
+
+Integration tests verify that all services work together in a docker-compose environment with LocalStack providing AWS service emulation. These tests run against the full stack to ensure end-to-end functionality.
+
+**Prerequisites:**
+- Docker and Docker Compose installed
+- Python 3.11+
+- Playwright browsers (installed automatically)
+
+**Running Integration Tests Locally:**
+
+```bash
+# Install integration test dependencies
+pip install -r tests/integration/requirements.txt
+
+# Install Playwright browsers
+playwright install chromium
+playwright install-deps chromium
+
+# Start docker-compose services (if not already running)
+docker-compose up -d
+
+# Initialize LocalStack resources
+./init-localstack.sh
+
+# Run integration tests
+cd tests/integration
+pytest -v -m integration
+```
+
+The integration tests will:
+- Start all docker-compose services (API, UI, LocalStack)
+- Initialize LocalStack resources (DynamoDB, SQS, SNS, SES)
+- Test API endpoints against the running services
+- Test UI smoke tests to verify the frontend loads and can interact with the API
+- Clean up services after tests complete
+
+**Note:** Integration tests are automatically run in CI on every push and pull request.
+
 ### Architecture
 
 ![](arch.png)

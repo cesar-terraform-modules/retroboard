@@ -6,18 +6,20 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 from botocore.errorfactory import ClientError
 
+SENDER_EMAIL = os.environ["SES_SENDER_EMAIL_ADDRESS"]
 TEMPLATE_NAME = "retroboard-summary"
 
 app = FastAPI()
 
-# Get AWS region from environment variable, default to us-east-1
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-ses_client = boto3.client("ses", region_name=AWS_REGION)
+# Configure SES client with region and endpoint_url for LocalStack
+aws_region = os.environ.get("AWS_REGION", "us-east-1")
+aws_endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
 
+ses_client_kwargs = {"region_name": aws_region}
+if aws_endpoint_url:
+    ses_client_kwargs["endpoint_url"] = aws_endpoint_url
 
-def get_sender_email():
-    """Get sender email from environment variable"""
-    return os.environ.get("SES_SENDER_EMAIL_ADDRESS", "sender@example.com")
+ses_client = boto3.client("ses", **ses_client_kwargs)
 
 
 class SQSRecord(BaseModel):
@@ -43,7 +45,7 @@ def process_email(event: SQSMessage):
             print("type(payload)", type(payload))
 
             send_args = {
-                "Source": get_sender_email(),
+                "Source": SENDER_EMAIL,
                 "Template": TEMPLATE_NAME,
                 "Destination": {"ToAddresses": [payload["to"]]},
                 "TemplateData": record.body,

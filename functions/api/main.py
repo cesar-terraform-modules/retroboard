@@ -30,8 +30,19 @@ app.add_middleware(
 app.description = "api to create a board with notes"
 
 db = initialize_db()
-sqs_client = boto3.client("sqs")
-sns_client = boto3.client("sns")
+
+# Configure SQS and SNS clients with region and endpoint_url for LocalStack
+aws_region = os.environ.get("AWS_REGION", "us-east-1")
+aws_endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
+
+sqs_client_kwargs = {"region_name": aws_region}
+sns_client_kwargs = {"region_name": aws_region}
+if aws_endpoint_url:
+    sqs_client_kwargs["endpoint_url"] = aws_endpoint_url
+    sns_client_kwargs["endpoint_url"] = aws_endpoint_url
+
+sqs_client = boto3.client("sqs", **sqs_client_kwargs)
+sns_client = boto3.client("sns", **sns_client_kwargs)
 repo = BoardRepo(db)
 
 
