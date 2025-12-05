@@ -6,12 +6,16 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 from botocore.errorfactory import ClientError
 
-SENDER_EMAIL = os.environ["SES_SENDER_EMAIL_ADDRESS"]
 TEMPLATE_NAME = "retroboard-summary"
 
 app = FastAPI()
 
 ses_client = boto3.client("ses")
+
+
+def get_sender_email():
+    """Get sender email from environment variable"""
+    return os.environ.get("SES_SENDER_EMAIL_ADDRESS", "sender@example.com")
 
 
 class SQSRecord(BaseModel):
@@ -37,7 +41,7 @@ def process_email(event: SQSMessage):
             print("type(payload)", type(payload))
 
             send_args = {
-                "Source": SENDER_EMAIL,
+                "Source": get_sender_email(),
                 "Template": TEMPLATE_NAME,
                 "Destination": {"ToAddresses": [payload["to"]]},
                 "TemplateData": record.body,
