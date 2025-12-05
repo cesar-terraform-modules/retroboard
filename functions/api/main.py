@@ -3,14 +3,17 @@ import re
 from typing import List
 import boto3
 from fastapi import FastAPI, Response, status
-from mangum import Mangum
 from errors import NotFoundException, ServerErrorException
 import logging
 from models import *
 from repo import BoardRepo, initialize_db
 
 from fastapi.middleware.cors import CORSMiddleware
-from env import CORS_ALLOWED_ORIGINS, SNS_TOPIC_SLACK_ALERTS_ARN, SQS_SEND_EMAIL_QUEUE_URL
+from env import (
+    CORS_ALLOWED_ORIGINS,
+    SNS_TOPIC_SLACK_ALERTS_ARN,
+    SQS_SEND_EMAIL_QUEUE_URL,
+)
 
 origins = CORS_ALLOWED_ORIGINS.split(",") + [
     "http://localhost:3000",
@@ -70,7 +73,11 @@ def delete_note(board_id: str, note_id: str):
 
 @app.put(
     "/boards/{board_id}/notes/{note_id}",
-    responses={200: {"model": Note}, 404: {"model": MessageResponse}, 500: {"model": MessageResponse}},
+    responses={
+        200: {"model": Note},
+        404: {"model": MessageResponse},
+        500: {"model": MessageResponse},
+    },
 )
 def update_note(board_id: str, note_id: str, note: NoteBase, response: Response):
     try:
@@ -145,4 +152,8 @@ def email_summary(body: EmailSummaryRequest, response: Response):
     return {"message": "Email summary will be sent shortly"}
 
 
-lambda_handler = Mangum(app, lifespan="off")
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
