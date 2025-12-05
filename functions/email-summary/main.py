@@ -10,7 +10,9 @@ TEMPLATE_NAME = "retroboard-summary"
 
 app = FastAPI()
 
-ses_client = boto3.client("ses")
+# Get AWS region from environment variable, default to us-east-1
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+ses_client = boto3.client("ses", region_name=AWS_REGION)
 
 
 def get_sender_email():
