@@ -22,7 +22,7 @@ def docker_compose():
     # Check if services are already running (e.g., started by CI workflow)
     # If SKIP_DOCKER_SETUP is set, assume services are already running
     skip_setup = os.getenv("SKIP_DOCKER_SETUP", "").lower() in ("1", "true", "yes")
-    
+
     if not skip_setup:
         # Start services
         print("Starting docker-compose services...")
