@@ -9,7 +9,7 @@ from playwright.sync_api import Page, expect, sync_playwright
 class TestUISmoke:
     """Basic smoke tests for the UI."""
 
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="function")
     def page(self, docker_compose, ui_base_url: str):
         """Create a Playwright page instance."""
         with sync_playwright() as p:
