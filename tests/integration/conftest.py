@@ -57,13 +57,16 @@ def docker_compose():
 
     yield
 
-    # Cleanup: stop services
-    print("Stopping docker-compose services...")
-    subprocess.run(
-        ["docker-compose", "-f", str(DOCKER_COMPOSE_FILE), "down", "-v"],
-        cwd=PROJECT_ROOT,
-        check=False,  # Don't fail if cleanup fails
-    )
+    # Cleanup: stop services only if we started them
+    if not skip_setup:
+        print("Stopping docker-compose services...")
+        subprocess.run(
+            ["docker-compose", "-f", str(DOCKER_COMPOSE_FILE), "down", "-v"],
+            cwd=PROJECT_ROOT,
+            check=False,  # Don't fail if cleanup fails
+        )
+    else:
+        print("Skipping docker-compose cleanup (services managed by CI)")
 
 
 @pytest.fixture(scope="session")

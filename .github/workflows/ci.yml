@@ -109,6 +109,8 @@ jobs:
         ./init-localstack.sh || true
 
     - name: Run integration tests
+      env:
+        SKIP_DOCKER_SETUP: "1"
       run: |
         cd tests/integration
         pytest -v -m integration
