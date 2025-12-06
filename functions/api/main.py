@@ -60,6 +60,13 @@ def create_board(board: BoardBase):
     return board
 
 
+@app.options("/boards")
+def options_boards():
+    # Explicit OPTIONS handler so CORS preflight without Access-Control-Request-Method
+    # header returns success instead of 405.
+    return Response(status_code=status.HTTP_200_OK)
+
+
 @app.post(
     "/boards/{board_id}/notes", status_code=status.HTTP_201_CREATED, response_model=Note
 )

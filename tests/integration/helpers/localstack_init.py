@@ -21,21 +21,48 @@ def initialize_localstack_resources(
     """
     resources = {}
 
-    # Set up boto3 clients
-    dynamodb = boto3.client("dynamodb", endpoint_url=endpoint_url, region_name=region)
-    sqs = boto3.client("sqs", endpoint_url=endpoint_url, region_name=region)
-    sns = boto3.client("sns", endpoint_url=endpoint_url, region_name=region)
-    ses = boto3.client("ses", endpoint_url=endpoint_url, region_name=region)
+    # Use provided AWS credentials when available, otherwise fall back to LocalStack-safe defaults
+    aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID", "test")
+    aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY", "test")
+    aws_session_token = os.getenv("AWS_SESSION_TOKEN")
 
-    # Create DynamoDB table
+    client_kwargs = {
+        "endpoint_url": endpoint_url,
+        "region_name": region,
+        "aws_access_key_id": aws_access_key_id,
+        "aws_secret_access_key": aws_secret_access_key,
+    }
+    if aws_session_token:
+        client_kwargs["aws_session_token"] = aws_session_token
+
+    # Set up boto3 clients
+    dynamodb = boto3.client("dynamodb", **client_kwargs)
+    sqs = boto3.client("sqs", **client_kwargs)
+    sns = boto3.client("sns", **client_kwargs)
+    ses = boto3.client("ses", **client_kwargs)
+
+    # Create DynamoDB table (idempotent)
     try:
+        # Clean up any existing table with incorrect schema to ensure tests run deterministically
+        existing_tables = dynamodb.list_tables().get("TableNames", [])
+        if "boards" in existing_tables:
+            dynamodb.delete_table(TableName="boards")
+            dynamodb.get_waiter("table_not_exists").wait(TableName="boards")
+
         table_response = dynamodb.create_table(
             TableName="boards",
-            AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
-            KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
+            AttributeDefinitions=[
+                {"AttributeName": "board_id", "AttributeType": "S"},
+                {"AttributeName": "sk", "AttributeType": "S"},
+            ],
+            KeySchema=[
+                {"AttributeName": "board_id", "KeyType": "HASH"},
+                {"AttributeName": "sk", "KeyType": "RANGE"},
+            ],
             BillingMode="PAY_PER_REQUEST",
         )
         resources["dynamodb_table"] = table_response["TableDescription"]["TableName"]
+        dynamodb.get_waiter("table_exists").wait(TableName="boards")
         print(f"Created DynamoDB table: {resources['dynamodb_table']}")
     except ClientError as e:
         if e.response["Error"]["Code"] == "ResourceInUseException":
