@@ -1,0 +1,164 @@
+{
+  "variable": {
+    "region": [
+      {
+        "description": "The AWS region to create resources in",
+        "type": "string",
+        "nullable": false,
+        "default": "${var.region}"
+      }
+    ],
+    "cluster_identifier": [
+      {
+        "description": "Unique identifier for the cluster. if omitted, a random unique identifier will be generated",
+        "nullable": true,
+        "type": "string"
+      }
+    ],
+    "rds_auto_pause": [
+      {
+        "default": true,
+        "description": "Specifies whether the DB cluster is paused or not (only for Aurora MySQL). The DB cluster can be paused only when it's idle (it has no connections). If a DB cluster is paused for more than seven days, the DB cluster might be backed up with a snapshot. In this case, the DB cluster is restored when there is a request to connect to it",
+        "nullable": true,
+        "type": "bool"
+      }
+    ],
+    "rds_availability_zones": [
+      {
+        "default": [
+          "us-east-1a",
+          "us-east-1b"
+        ],
+        "description": "A list of EC2 Availability Zones that instances in the DB cluster can be created in",
+        "nullable": true,
+        "type": "list(string)"
+      }
+    ],
+    "rds_backup_retention_period": [
+      {
+        "default": 9,
+        "description": "The days to retain backups for, must be between 1 and 35. Defaults to 1. Set to 0 to disable backups. Must be greater than 0 if storage_encrypted is true. If storage_encrypted is false then this attribute is ignored",
+        "nullable": true,
+        "type": "number"
+      }
+    ],
+    "rds_database_name": [
+      {
+        "description": "The name for your database of up to 64 alpha-numeric characters",
+        "nullable": false,
+        "type": "string",
+        "default": "default"
+      }
+    ],
+    "rds_db_subnet_group_name": [
+      {
+        "default": "default",
+        "description": "The DB subnet group to associate with this RDS cluster",
+        "nullable": true,
+        "type": "string"
+      }
+    ],
+    "rds_engine": [
+      {
+        "description": "The name of the database engine to be used for this DB cluster",
+        "nullable": false,
+        "type": "string",
+        "default": "postgres"
+      }
+    ],
+    "rds_engine_mode": [
+      {
+        "description": "The DB engine mode of the DB cluster",
+        "nullable": false,
+        "type": "string",
+        "default": "provisioned"
+      }
+    ],
+    "rds_engine_version": [
+      {
+        "description": "The engine version to use for the new DB cluster",
+        "nullable": false,
+        "type": "string",
+        "default": "16.4"
+      }
+    ],
+    "rds_master_password": [
+      {
+        "description": "Password for the master DB user",
+        "nullable": false,
+        "type": "string",
+        "sensitive": true,
+        "default": "password"
+      }
+    ],
+    "rds_master_username": [
+      {
+        "description": "Username for the master DB user",
+        "nullable": false,
+        "type": "string",
+        "default": "admin"
+      }
+    ],
+    "rds_max_capacity": [
+      {
+        "default": 2,
+        "description": "The maximum capacity for an Aurora DB cluster in serverless DB engine mode",
+        "nullable": true,
+        "type": "number"
+      }
+    ],
+    "rds_min_capacity": [
+      {
+        "default": 1,
+        "description": "The minimum capacity for an Aurora DB cluster in serverless DB engine mode",
+        "nullable": true,
+        "type": "number"
+      }
+    ],
+    "rds_preferred_backup_window": [
+      {
+        "default": "07:00-09:00",
+        "description": "The daily time range during which automated backups are created if automated backups are enabled using the BackupRetentionPeriod parameter.Time in UTC",
+        "nullable": true,
+        "type": "string"
+      }
+    ],
+    "rds_preferred_maintenance_window": [
+      {
+        "default": "sun:05:00-sun:06:00",
+        "description": "The weekly time range during which system maintenance can occur, in Universal Coordinated Time (UTC)",
+        "nullable": true,
+        "type": "string"
+      }
+    ],
+    "rds_storage_encrypted": [
+      {
+        "default": true,
+        "description": "Specifies whether the DB cluster is encrypted",
+        "nullable": true,
+        "type": "bool"
+      }
+    ],
+    "use_custom_kms_key_for_encryption": [
+      {
+        "default": false,
+        "description": "Whether to use a custom KMS key for encryption",
+        "type": "bool"
+      }
+    ],
+    "security_groups": [
+      {
+        "nullable": true,
+        "description": "List of VPC security groups to associate with the Cluster",
+        "type": "list(string)"
+      }
+    ],
+    "tags": [
+      {
+        "type": "map(string)",
+        "description": "A map of tags to assign to the resource.",
+        "nullable": true
+      }
+    ]
+  }
+}

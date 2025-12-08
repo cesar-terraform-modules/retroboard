@@ -1,0 +1,135 @@
+{
+    "variable": {
+        "cluster_id": [
+            {
+                "description": "The cluster ID. This parameter is stored as a lowercase string.",
+                "type": "string"
+            }
+        ],
+        "engine": [
+            {
+                "default": "redis",
+                "description": "The name of the cache engine to be used for this cluster.",
+                "type": "string"
+            }
+        ],
+        "node_type": [
+            {
+                "default": "cache.m5.large",
+                "description": "The compute and memory capacity of the nodes in the node group.",
+                "type": "string"
+            }
+        ],
+        "num_cache_nodes": [
+            {
+                "default": 1,
+                "description": "The initial number of cache nodes that the cluster has.",
+                "type": "number"
+            }
+        ],
+        "port": [
+            {
+                "nullable": true,
+                "description": "The port number on which each of the cache nodes will accept connections.",
+                "type": "number"
+            }
+        ],
+        "family": [
+            {
+                "description": "The family of the cache parameter group.",
+                "type": "string"
+            }
+        ],
+        "enable_redis_log_delivery": [
+            {
+                "default": false,
+                "description": "Specifies whether to enable Redis log delivery to Amazon CloudWatch Logs.",
+                "type": "bool"
+            }
+        ],
+        "cloudwatch_retention_in_days": [
+            {
+                "description": "Number of days to retain CloudWatch logs",
+                "type": "number",
+                "default": 30
+            }
+        ],
+        "log_type": [
+            {
+                "description": "Specifies the log type.",
+                "type": "string",
+                "default": "engine-log"
+            }
+        ],
+        "log_format": [
+            {
+                "description": "Specifies the format of the logs.",
+                "type": "string",
+                "default": "json"
+            }
+        ],
+        "subnet_ids": [
+            {
+                "description": "A list of VPC subnet IDs for the ElastiCache subnet group.",
+                "type": "list(string)",
+                "nullable": true
+            }
+        ],
+        "use_vpc": [
+            {
+                "default": false,
+                "description": "Enables provisioning the domain inside a VPC. Requires subnet_ids and security_group_ids to be set.",
+                "type": "bool"
+            }
+        ],
+        "security_group_ids": [
+            {
+                "description": "List of security group IDs to be used on ElastiCache cluster. Requires vpc_options to be set.",
+                "type": "list(string)",
+                "nullable": true
+            }
+        ],
+        "az_mode": [
+            {
+                "default": "single-az",
+                "description": "Specifies whether the nodes in this Memcached cluster are created in a single Availability Zone or created across multiple Availability Zones in the cluster's region.",
+                "type": "string"
+            }
+        ],
+        "tags": [
+            {
+                "description": "A mapping of tags to assign to the resource.",
+                "type": "map(string)",
+                "nullable": true
+            }
+        ],
+        "user_id":[
+            {
+                "description": "The user ID of the owner of the cluster.",
+                "type": "string",
+                "nullable": false
+            }
+        ],
+        "user_name":[
+            {
+                "description": "The user name of the owner of the cluster.",
+                "type": "string",
+                "nullable": false
+            }
+        ],
+        "access_string":[
+            {
+                "description": "The access string of the owner of the cluster.",
+                "type": "string",
+                "nullable": false
+            }
+        ],
+        "password":[
+            {
+                "description": "The password of the owner of the cluster.",
+                "type": "string",
+                "nullable": true
+            }
+        ]
+    }
+}
