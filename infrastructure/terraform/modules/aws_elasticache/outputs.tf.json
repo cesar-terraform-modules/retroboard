@@ -1,0 +1,14 @@
+{
+  "output": {
+    "arn": {
+      "description": "The value of the arn output",
+      "sensitive": false,
+      "value": "${aws_elasticache_cluster.this.arn}"
+    },
+    "cloudwatch_log_group_arn": {
+      "description": "The value of the cloudwatch_log_group_arn output",
+      "sensitive": false,
+      "value": "${aws_cloudwatch_log_group.elasticache_redis_cloudwatch_log.arn}"
+    }
+  }
+}
