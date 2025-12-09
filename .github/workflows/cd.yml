@@ -19,6 +19,7 @@ jobs:
       REGION: us-east-2
       STACKGEN_VERSION: 0.73.2
       STACKGEN_TOKEN: ${{ secrets.STACKGEN_TOKEN }}
+      STACKGEN_URL: https://stage.dev.stackgen.com
     steps:
       - uses: actions/checkout@v4
 
