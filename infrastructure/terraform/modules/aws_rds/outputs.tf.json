@@ -1,0 +1,34 @@
+{
+  "output": {
+    "arn": {
+      "description": "The value of the arn output",
+      "sensitive": false,
+      "value": "${aws_rds_cluster.this.arn}"
+    },
+    "connection_string": {
+      "description": "The value of the connection_string output",
+      "sensitive": true,
+      "value": "${aws_rds_cluster.this.engine}://${aws_rds_cluster.this.master_username}:${aws_rds_cluster.this.master_password}@${aws_rds_cluster.this.endpoint}:${aws_rds_cluster.this.port}/${var.rds_database_name}"
+    },
+    "password": {
+      "description": "The value of the password output",
+      "sensitive": true,
+      "value": "${aws_rds_cluster.this.master_password}"
+    },
+    "port": {
+      "description": "The value of the port output",
+      "sensitive": false,
+      "value": "${aws_rds_cluster.this.port}"
+    },
+    "rds_endpoint": {
+      "description": "The value of the rds_endpoint output",
+      "sensitive": false,
+      "value": "${aws_rds_cluster.this.endpoint}"
+    },
+    "username": {
+      "description": "The value of the username output",
+      "sensitive": false,
+      "value": "${aws_rds_cluster.this.master_username}"
+    }
+  }
+}

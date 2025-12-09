@@ -1,0 +1,52 @@
+helm_hpa_95a1ebd0e71243ec9281cd5689ef3076:
+    enabled: true
+    max_replicas: 5
+    min_replicas: 2
+    name: notification-hpa
+    target_cpu_utilization_percentage: 70
+    target_memory_utilization_percentage: 70
+    workload_kind: Deployment
+    workload_name: notification-service
+helm_ingress_80afc583e6834816a56ed18479121290:
+    annotations:
+        kubernetes.io/ingress.class: nginx
+    class_name: nginx
+    default_backend_name: notification-service
+    default_backend_port: 80
+    enabled: true
+    labels:
+        service: notification-service
+    rules: []
+    tls: ""
+helm_service_45476abe5e46456c8b2c95b7b0e39c5c:
+    name: notification-service
+    port: 80
+    protocol: TCP
+    selector_labels:
+        service: notification-service
+    target_port: 80
+    type: ClusterIP
+helm_service_account_99d80fbe277f4eaaaf1cc32d893b2578:
+    annotations: {}
+    automount: false
+    labels:
+        app: notification-service
+    name: notification-sa
+helm_workload_86872bf05cd74b058fd6af9724a417dc:
+    env: {}
+    env_from_config: []
+    env_from_secret: []
+    image: public.ecr.aws/docker/library/nginx
+    image_pull_policy: Always
+    image_pull_secret: null
+    image_tag: latest
+    kind: Deployment
+    labels:
+        service: notification-service
+    name: notification-service
+    port: 80
+    protocol: TCP
+    replicas: 2
+    service_account: notification-sa
+    volume_mounts: []
+    volumes: []
