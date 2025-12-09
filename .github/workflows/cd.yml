@@ -48,7 +48,6 @@ jobs:
           mkdir -p "${WORKDIR}"
           stackgen provision \
             --iac-tool terraform \
-            --cloud-profile stackgen-sandbox-admin \
             --var region=${REGION} \
             --work-dir "${WORKDIR}" \
             --appstack-id "${APPSTACK_ID}" \
