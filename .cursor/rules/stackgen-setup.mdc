@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+- Use the "cesar-demo" project in StackGen for all services and infrastructure changes in this project.
+- When using StackGen for creating new services make sure to use the "Microservice Starter Pack" as the default resource pack for each new microservice.
+- When doing pull requests for infrastructure changes:
+    - Use "StackGen" to generate the infrastructure changes
+    - Any infrastructure pull requests should be opened using the push to git capability of StackGen against the "main" branch of the [retroboard](https://github.com/cesar-terraform-modules/retroboard) repository and in a directory called `/infrastructure`. If possible, reuse the GitHub configuration called "retroboard-test".
