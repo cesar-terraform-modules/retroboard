@@ -1,0 +1,54 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      appstack_id:
+        description: "StackGen appstack UUID"
+        required: true
+        type: string
+
+jobs:
+  plan-stackgen:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PROJECT_ID: 60ff09a4-2c58-40a5-a466-d82ac21ec5d7
+      REGION: us-east-2
+      STACKGEN_VERSION: 0.73.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install StackGen CLI
+        run: |
+          VERSION="${STACKGEN_VERSION:-0.73.2}"
+          OS="linux"
+          ARCH="amd64"
+          URL="https://releases.stackgen.com/binaries/stackgen-cli/v${VERSION}/stackgen-cli_${VERSION}_${OS}_${ARCH}.tar.gz"
+          curl -sSL "${URL}" -o /tmp/stackgen.tar.gz
+          tar -xzf /tmp/stackgen.tar.gz -C /tmp
+          sudo mv /tmp/stackgen /usr/local/bin/stackgen
+          sudo chmod +x /usr/local/bin/stackgen
+          stackgen version
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_SANDBOX_OIDC_ARN }}
+          aws-region: ${{ env.REGION }}
+
+      - name: StackGen plan
+        run: |
+          APPSTACK_ID="${{ github.event.inputs.appstack_id }}"
+          WORKDIR="./infrastructure/${APPSTACK_ID}"
+          mkdir -p "${WORKDIR}"
+          stackgen provision \
+            --iac-tool terraform \
+            --cloud-profile stackgen-sandbox-admin \
+            --var region=${REGION} \
+            --work-dir "${WORKDIR}" \
+            --appstack-id "${APPSTACK_ID}" \
+            --project "${PROJECT_ID}"
+
