@@ -14,7 +14,7 @@ jobs:
         service:
           - api
           - email-summary
-          - slack-alerts
+          - notification-service
 
     env:
       SES_SENDER_EMAIL_ADDRESS: "sender@example.com"
