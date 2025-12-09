@@ -24,9 +24,9 @@ mv "$tempdir"/api.zip "$root_dir"/build/
 cd "$root_dir"/functions/email-summary || exit
 zip -r "$root_dir"/build/email-summary.zip ./*.py
 
-# package slack-alerts
-cd "$root_dir"/functions/slack-alerts || exit
-zip -r "$root_dir"/build/slack-alerts.zip ./*.py
+# package notification-service
+cd "$root_dir"/functions/notification-service || exit
+zip -r "$root_dir"/build/notification-service.zip ./*.py
 
 # package app
 cd "$root_dir"/app || exit

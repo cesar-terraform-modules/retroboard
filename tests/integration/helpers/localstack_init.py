@@ -78,7 +78,10 @@ def initialize_localstack_resources(
         print(f"Created/retrieved SQS queue: {resources['sqs_queue_url']}")
     except ClientError as e:
         # If create fails, try to get existing queue
-        if e.response["Error"]["Code"] in ("QueueAlreadyExists", "AWS.SimpleQueueService.QueueAlreadyExists"):
+        if e.response["Error"]["Code"] in (
+            "QueueAlreadyExists",
+            "AWS.SimpleQueueService.QueueAlreadyExists",
+        ):
             queue_response = sqs.get_queue_url(QueueName="retroboard-emails")
             resources["sqs_queue_url"] = queue_response["QueueUrl"]
             print(f"SQS queue already exists: {resources['sqs_queue_url']}")
@@ -119,10 +122,14 @@ def initialize_localstack_resources(
         # In LocalStack, this is usually fine - just continue
         if error_code in ("MessageRejected", "InvalidParameter"):
             resources["ses_email"] = "noreply@example.com"
-            print(f"SES email verification skipped (already verified or not required): {resources['ses_email']}")
+            print(
+                f"SES email verification skipped (already verified or not required): {resources['ses_email']}"
+            )
         else:
             # For other errors, log but don't fail
-            print(f"Warning: SES email verification failed with {error_code}, continuing anyway")
+            print(
+                f"Warning: SES email verification failed with {error_code}, continuing anyway"
+            )
             resources["ses_email"] = "noreply@example.com"
 
     return resources

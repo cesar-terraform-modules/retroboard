@@ -17,7 +17,7 @@ The application consists of three microservices:
 
 1. **API Service** (`functions/api/`) - FastAPI REST API for managing boards and notes
 2. **Email Summary Worker** (`functions/email-summary/`) - HTTP endpoint for processing SQS messages and sending email summaries via SES
-3. **Slack Alerts Worker** (`functions/slack-alerts/`) - HTTP endpoint for processing SNS messages and sending alerts to Slack
+3. **Notification Service** (`functions/notification-service/`) - HTTP endpoint for processing SNS messages and sending alerts to Slack
 
 All services are containerized and can be deployed to AWS ECS. Each service runs as a long-running HTTP server using Uvicorn.
 
@@ -37,7 +37,7 @@ TEMPLATE_NAME - SES template name for email summaries (default: retroboard-summa
 PORT - Port number for the HTTP server (default: 8000)
 ```
 
-#### Slack Alerts Worker (`functions/slack-alerts/`)
+#### Notification Service (`functions/notification-service/`)
 ```
 SLACK_WEBHOOK_URL - Slack webhook URL to send alerts when a new board is created
 PORT - Port number for the HTTP server (default: 8000)
@@ -66,7 +66,7 @@ docker-compose down
 This will start:
 - **API Service** on `http://localhost:8000`
 - **Email Summary Worker** on `http://localhost:8001`
-- **Slack Alerts Worker** on `http://localhost:8002`
+- **Notification Service** on `http://localhost:8002`
 - **Frontend App** on `http://localhost:3000`
 - **LocalStack** (AWS emulator) on `http://localhost:4566`
 
@@ -127,8 +127,8 @@ cd functions/email-summary
 pip install -r requirements.txt
 python main.py
 
-# Slack Alerts Worker
-cd functions/slack-alerts
+# Notification Service
+cd functions/notification-service
 pip install -r requirements.txt
 python main.py
 ```
@@ -151,11 +151,11 @@ docker run -p 8001:8000 \
   -e SES_SENDER_EMAIL_ADDRESS=noreply@example.com \
   retroboard-email-summary
 
-# Build Slack Alerts service
-docker build -t retroboard-slack-alerts ./functions/slack-alerts
+# Build Notification Service
+docker build -t retroboard-notification-service ./functions/notification-service
 docker run -p 8002:8000 \
   -e SLACK_WEBHOOK_URL=http://localhost:3001/webhook \
-  retroboard-slack-alerts
+  retroboard-notification-service
 
 # Build Frontend app
 docker build -t retroboard-app ./app
@@ -175,8 +175,8 @@ pytest tests/ -v
 cd functions/email-summary
 pytest tests/ -v
 
-# Slack Alerts Worker tests
-cd functions/slack-alerts
+# Notification Service tests
+cd functions/notification-service
 pytest tests/ -v
 ```
 
@@ -239,10 +239,10 @@ The services are designed to be deployed to AWS ECS:
 
 1. **Container Images**: Each service includes a Dockerfile and can be built using the provided Dockerfiles:
    ```bash
-   docker build -t retroboard-api ./functions/api
-   docker build -t retroboard-email-summary ./functions/email-summary
-   docker build -t retroboard-slack-alerts ./functions/slack-alerts
-   docker build -t retroboard-app ./app
+  docker build -t retroboard-api ./functions/api
+  docker build -t retroboard-email-summary ./functions/email-summary
+  docker build -t retroboard-notification-service ./functions/notification-service
+  docker build -t retroboard-app ./app
    ```
 2. **ECS Tasks**: Deploy each service as a separate ECS task/service
 3. **Load Balancer**: Use an Application Load Balancer (ALB) to route traffic to the API service
