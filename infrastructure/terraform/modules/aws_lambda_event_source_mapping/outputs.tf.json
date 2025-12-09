@@ -1,0 +1,9 @@
+{
+  "output": {
+    "arn": {
+      "description": "The event source mapping ARN.",
+      "sensitive": false,
+      "value": "${aws_lambda_event_source_mapping.this.arn}"
+    }
+  }
+}

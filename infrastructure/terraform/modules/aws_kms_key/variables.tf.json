@@ -1,0 +1,27 @@
+{
+    "variable": {
+        "description": [
+            {
+                "description": "value of description",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "enable_key_rotation": [
+            {
+                "default": true,
+                "description": "value of enable_key_rotation",
+                "type": "bool",
+                "nullable": true
+            }
+        ],
+        "tags": [
+            {
+              "description": "A map of tags to apply to the resources",
+              "type": "map(string)",
+              "default": {},
+              "nullable": true
+            }
+          ]
+    }
+}
