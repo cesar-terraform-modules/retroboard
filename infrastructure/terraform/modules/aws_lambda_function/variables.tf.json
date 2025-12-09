@@ -1,0 +1,242 @@
+{
+    "variable": {
+        "function_name": [
+            {
+                "description": "Unique name for the lambda function",
+                "type": "string",
+                "nullable": false
+            }
+        ],
+        "role": [
+            {
+                "description": "ARN of the function's execution role",
+                "type": "string",
+                "nullable": false
+            }
+        ],
+        "architectures": [
+            {
+                "description": "Instruction set architecture for the lambda function",
+                "type": "list(string)",
+                "nullable": true,
+                "default": ["x86_64"]
+            }
+        ],
+        "code_signing_config_arn": [
+            {
+                "description": "Enables code signing for the function with the given ARN of the configuration",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "dead_letter_config": [
+           {
+                "description": "Dead letter queue configuration that specifies the queue where the lambda sends failed asynchronous events",
+                "nullable": true,
+                "type": "list(object({target_arn: string}))"
+           }
+        ],
+        "description": [
+            {
+                "description": "Description of what the lambda function does",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "environment": [
+            {
+                "description": "Map of environment variables accessible from the function code during execution. Do not enter AWS secret keys, access keys, or access tokens in this field",
+                "type": "list(object({variables:map(string)}))",
+                "nullable": true
+            }
+        ],
+        "ephemeral_storage": [
+            {
+                "description": "Amount of ephemeral_storage storage to allocate for the function in MB. Max is 10240",
+                "type": "list(object({size:number}))",
+                "nullable": true,
+                "default": [{"size": 512}]
+            }
+        ],
+        "file_system_config": [
+            {
+                "description": "Connection settings for an EFS file system",
+                "type": "list(object({arn:string, local_mount_path: string}))",
+                "nullable": true
+            }
+        ],
+        "filename": [
+            {
+                "description": "Path to the function's deployment package within the filesystem. Exactly one of the filename, image_uri, or s3_bucket fields must be specified",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "handler":[
+            {
+                "description": "Function entrypoint in your code",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "image_config":[
+            {
+                "description": "Container image configuration values that override the values in the container Dockerfile",
+                "type": "list(object({command:list(string), entry_point:list(string), working_directory:string}))",
+                "nullable": true
+            }
+        ],
+        "image_uri":[
+            {
+                "description":"ECR image URI containing the function's deployment package. Exactly one of the filename, image_uri, or s3_bucket fields must be specified",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "kms_key_arn":[
+            {
+                "description":"ARN of the KMS key used to encrypt environment variables",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "layers":[
+            {
+                "description": "List of Lambda Layer Version ARNs to attach to the lambda function (max of 5)",
+                "type": "list(string)",
+                "nullable": true
+            }
+        ],
+        "logging_config":[
+            {
+                "description": "Advanced logging settings",
+                "type": "list(object({application_log_level:string, log_format:string, log_group:string, system_log_level:string}))",
+                "nullable": true
+            }
+        ],
+        "memory_size":[
+            {
+                "description": "Amount of memory in MB the lambda function can use at runtime",
+                "type": "number",
+                "default": "128",
+                "nullable": true
+            }
+        ],
+        "package_type": [
+            {
+                "description": "Lambda deployment package type",
+                "type": "string",
+                "default": "Zip",
+                "nullable": true
+            }
+        ],
+        "publish": [
+            {
+                "description": "Whether to public creation/change as new Lambda Function Version",
+                "type": "bool",
+                "nullable": true,
+                "default": false
+            }
+        ],
+        "reserved_concurrent_executions":[
+            {
+                "description": "Amount of reserved concurrent executions for this lambda function",
+                "type": "number",
+                "default": -1,
+                "nullable": true
+            }
+        ],
+        "replace_security_groups_on_destroy": [
+            {
+                "description": "Whether to replace the security groups on the function's VPC configuration prior to destruction",
+                "type": "bool",
+                "nullable": true
+            }
+        ],
+        "replacement_security_group_ids":[
+            {
+                "description": "List of security group IDs to assign to the function's VPC configuration before destruction. Replace Security Groups on Destroy must be true to use this field",
+                "type": "list(string)",
+                "nullable": true
+            }
+        ],
+        "runtime":[
+            {
+                "description": "Identifier of the function's runtime",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "s3_bucket":[
+            {
+                "description": "S3 bucket location containing the function's deployment package. Exactly one of the filename, image_uri, or s3_bucket fields must be specified",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "s3_key":[
+            {
+                "description": "S3 key of an object containing the function's deployment package. Required when S3 bucket field set",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "skip_destroy":[
+            {
+                "description": "Skips deleting the function at destroy time and instead removes function from Terraform state",
+                "type": "bool",
+                "nullable": true
+            }
+        ],
+        "source_code_hash":[
+            {
+                "description": "Virtual attribute used to trigger replacement when source code changes. Must be set to a base64-encoded SHA256 hash of the package file with either filename or s3 key.",
+                "type": "string",
+                "nullable": true
+            }
+        ],
+        "snap_start":[
+            {
+                "description": "Snap start settings for low-latency startups",
+                "type": "list(object({apply_on:string}))",
+                "nullable": true
+            }
+        ],
+        "tags":[
+            {
+                "description": "Map of tags to assign to the object",
+                "type": "map(string)",
+                "nullable": true
+            }
+        ],
+        "timeout":[
+            {
+                "description": "Amount of time the lambda function has to run in seconds",
+                "type": "number",
+                "nullable": true,
+                "default": 3
+            }
+        ],
+        "tracing_config":[
+            {
+                "description": "Tracing configuration block",
+                "type": "list(object({mode:string}))",
+                "nullable": true
+            }
+        ],
+        "vpc_config":[
+            {
+                "description": "Connects to AWS resources in a VPC",
+                "type": "list(object({ipv6_allowed_for_dual_stack:optional(bool), security_group_ids:list(string), subnet_ids:list(string)}))",
+                "nullable":true
+            }
+        ],
+        "timeouts": [
+            {
+                "type": "object({create: optional(string), update: optional(string), delete: optional(string)})",
+                "description": "The timeouts",
+                "nullable": true
+            }
+        ]
+    }
+}

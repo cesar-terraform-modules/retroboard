@@ -1,0 +1,19 @@
+{
+  "output": {
+    "arn": {
+      "description": "The value of the arn output",
+      "sensitive": false,
+      "value": "${aws_kms_key.this.arn}"
+    },
+    "id": {
+      "description": "The value of the id output",
+      "sensitive": false,
+      "value": "${aws_kms_key.this.id}"
+    },
+    "key_id": {
+      "description": "The value of the key_id output",
+      "sensitive": false,
+      "value": "${aws_kms_key.this.key_id}"
+    }
+  }
+}

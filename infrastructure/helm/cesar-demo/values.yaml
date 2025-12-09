@@ -1,0 +1,54 @@
+helm_hpa_7d247d7bbeed49a6b7d142fa4f5e6436:
+    enabled: true
+    max_replicas: 4
+    min_replicas: 1
+    name: notification-service-hpa
+    target_cpu_utilization_percentage: 70
+    target_memory_utilization_percentage: 75
+    workload_kind: Deployment
+    workload_name: notification-service
+helm_ingress_52583511375d438e9efc56b10de8442c:
+    annotations:
+        nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    class_name: nginx
+    default_backend_name: notification-service
+    default_backend_port: 80
+    enabled: true
+    labels:
+        service: notification-service
+    rules: []
+    tls: ""
+helm_service_8a8d52f92c3d42f49d1e4da26935ddab:
+    name: notification-service
+    port: 80
+    protocol: TCP
+    selector_labels:
+        service: notification-service
+    target_port: 8000
+    type: ClusterIP
+helm_service_account_ef07c4d820884f95b477c1df38d00f16:
+    annotations: {}
+    automount: true
+    labels:
+        service: notification-service
+    name: notification-service-sa
+helm_workload_2b720787fbad4cb887de31cf51b2404c:
+    env:
+        PORT: "8000"
+        SLACK_WEBHOOK_URL: <set-me>
+    env_from_config: []
+    env_from_secret: []
+    image: ghcr.io/cesar-terraform-modules/notification-service
+    image_pull_policy: Always
+    image_pull_secret: null
+    image_tag: latest
+    kind: Deployment
+    labels:
+        service: notification-service
+    name: notification-service
+    port: 8000
+    protocol: TCP
+    replicas: 2
+    service_account: notification-service-sa
+    volume_mounts: []
+    volumes: []
