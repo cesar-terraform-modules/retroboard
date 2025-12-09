@@ -2,9 +2,24 @@
 alwaysApply: true
 ---
 - Use the stackgen project named "retroboard" in StackGen for all services and infrastructure changes in this project. The UUID of the project is 60ff09a4-2c58-40a5-a466-d82ac21ec5d7
+- When being asked to deploy a service, check if there are any existing appstacks in stackgen for the service. If there are, use the existing appstack. If there are not, create a new appstack.
 - When using StackGen for creating new services make sure to use the "SNS Fanout" as the default resource pack for each new microservice.
-- When filling out variables for resources in stackgen you can use the local AWS CLI with the "stackgen-sandbox-admin" environment profile and the "us-east-2" region to get environmental information for the account.
-- When deploying services use StackGen to create pull requests for the infrastructure changes.
+- When configuring resources in StackGen use the local AWS CLI with the "stackgen-sandbox-admin" profile and the "us-east-2" region to get environmental information for the account including subnets and other network settings.
+- Always prefill any required variables for resources in stackgen with safe default and any environment level information from the local AWS CLI. Add new resources to the topology if needed.
+- Any ALBs created should be internet facing. Other networking elements should be default networking.
+- After you create a new appstack in stackgen, present the user with the URL to view the appstack in stackgen. Note that appStack URLs follow this format: https://stage.dev.stackgen.com/project/{project name}/appstacks/${appstack UUID}?tabId=topology
 - When doing pull requests for infrastructure changes:
     - Use "StackGen" to generate the infrastructure changes
-    - Any infrastructure pull requests should be opened using the push to git capability of StackGen against the "main" branch of the [retroboard](https://github.com/cesar-terraform-modules/retroboard) repository and in a directory called `/infrastructure`. If possible, reuse the GitHub configuration called "cesar-git-configuration", otherwise create a new one.
+    - Any infrastructure pull requests should be opened using the push to git capability of StackGen against the "main" branch of the [retroboard](https://github.com/cesar-terraform-modules/retroboard) repository and in a directory called `/infrastructure`. Always create new GitHub configuration the 1st time using the "GitHub" secret from the stackgen secret store.
+- For local validation, run *plan only* with stackgen CLI (no apply):
+  stackgen provision \
+    --iac-tool terraform \
+    --cloud-profile stackgen-sandbox-admin \
+    --var region=us-east-2 \
+    --work-dir ./infrastructure/<stackgen-export-dir> \
+    --appstack-id <appstack-id> \
+    --project 60ff09a4-2c58-40a5-a466-d82ac21ec5d7
+  - Never apply locally; resolve any issues in StackGen, not by editing generated IaC.
+  - Use the exported StackGen IaC in `infrastructure/...` as the working directory.
+  - Skip env profiles (not used today).
+  - If the CLI fails, rerun with `--log 2` for debug details.
