@@ -19,6 +19,7 @@ alwaysApply: true
     --work-dir ./infrastructure/<stackgen-export-dir> \
     --appstack-id <appstack-id> \
     --project 60ff09a4-2c58-40a5-a466-d82ac21ec5d7
+  - No need to download the IaC separately, the command will download it automatically.
   - Never apply locally; resolve any issues in StackGen, not by editing generated IaC.
   - Use the exported StackGen IaC in `infrastructure/...` as the working directory.
   - Skip env profiles (not used today).
