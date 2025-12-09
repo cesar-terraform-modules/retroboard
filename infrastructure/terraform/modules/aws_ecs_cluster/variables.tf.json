@@ -1,0 +1,39 @@
+{
+    "variable": {
+        "name": [
+            {
+                "description": "The name of the ECS cluster",
+                "type": "string",
+                "nullable": false
+            }
+        ],
+        "setting": [
+            {
+                "description": "The settings for the ECS cluster",
+                "type": "list(object({name:string, value:string}))",
+                "nullable": true
+            }
+        ],
+        "service_connect_defaults": [
+            {
+                "description": "The service connect defaults for the ECS cluster",
+                "type": "list(object({namespace:string}))",
+                "nullable": true
+            }
+        ],
+        "tags": [
+            {
+                "description": "The tags for the ECS cluster",
+                "type": "map(string)",
+                "nullable": true
+            }
+        ],
+        "configuration": [
+            {
+                "description": "Configuration for the ECS cluster, including execute command and storage options",
+                "type": "list(object({execute_command_configuration:list(object({kms_key_id:string, logging:string, log_configuration:list(object({cloud_watch_encryption_enabled:bool, cloud_watch_log_group_name:string, s3_bucket_encryption_enabled:bool, s3_bucket_name:string, s3_key_prefix:string}))})), managed_storage_configuration:optional(list(object({fargate_ephemeral_storage_kms_key_id:string, kms_key_id:string})))}))",
+                "nullable": true
+            }
+        ]
+    }
+}
