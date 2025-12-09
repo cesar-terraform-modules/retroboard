@@ -18,6 +18,7 @@ jobs:
       PROJECT_ID: 60ff09a4-2c58-40a5-a466-d82ac21ec5d7
       REGION: us-east-2
       STACKGEN_VERSION: 0.73.2
+      STACKGEN_TOKEN: ${{ secrets.STACKGEN_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
