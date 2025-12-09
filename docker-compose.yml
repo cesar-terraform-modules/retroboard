@@ -55,11 +55,11 @@ services:
       - ./functions/email-summary:/app
     command: python main.py
 
-  slack-alerts:
+  notification-service:
     build:
-      context: ./functions/slack-alerts
+      context: ./functions/notification-service
       dockerfile: Dockerfile
-    container_name: retroboard-slack-alerts
+    container_name: retroboard-notification-service
     ports:
       - "8002:8000"
     environment:
@@ -68,7 +68,7 @@ services:
     networks:
       - retroboard-network
     volumes:
-      - ./functions/slack-alerts:/app
+      - ./functions/notification-service:/app
     command: python main.py
 
   app:

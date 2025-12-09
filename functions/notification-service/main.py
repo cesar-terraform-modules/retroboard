@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, HTTPException, status
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-app = FastAPI()
+app = FastAPI(title="Notification Service")
 http = urllib3.PoolManager()
 
 
@@ -26,8 +26,8 @@ class SNSMessage(BaseModel):
 
 @app.post("/")
 @app.post("/process")
-async def process_slack_alert(request: Request):
-    """Process SNS messages for Slack alerts"""
+async def process_notification(request: Request):
+    """Process SNS messages and forward them to the notification webhook"""
     try:
         # Parse request body
         body = await request.json()
@@ -60,17 +60,17 @@ async def process_slack_alert(request: Request):
         if resp.status >= 400:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Slack webhook returned error: {resp.status}",
+                detail=f"Notification webhook returned error: {resp.status}",
             )
 
         return {"status": "success", "slack_status": resp.status}
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error processing Slack alert: {str(e)}")
+        print(f"Error processing notification: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing Slack alert: {str(e)}",
+            detail=f"Error processing notification: {str(e)}",
         )
 
 
