@@ -1,0 +1,182 @@
+{
+    "variable": {
+        "topic_name": [
+            {
+                "description": "The name of the topic. Topic names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 256 characters long. For a FIFO (first-in-first-out) topic, the name must end with the '.fifo' suffix. If omitted, Terraform will assign a random, unique name.",
+                "nullable": false,
+                "type": "string"
+            }
+        ],
+        "display_name": [
+            {
+                "description": "The display name for the topic.",
+                "nullable": true,
+                "type": "string",
+                "default": null
+            }
+        ],
+        "fifo_topic": [
+            {
+                "description": "Boolean indicating whether or not to create a FIFO (first-in-first-out) topic (default is false).",
+                "nullable": true,
+                "type": "bool"
+            }
+        ],
+        "delivery_policy": [
+            {
+                "description": "The SNS delivery policy.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "signature_version": [
+            {
+                "description": "If SignatureVersion should be 1 (SHA1) or 2 (SHA256). The signature version corresponds to the hashing algorithm used while creating the signature of the notifications, subscription confirmations, or unsubscribe confirmation messages sent by Amazon SNS.",
+                "nullable": true,
+                "type": "number"
+            }
+        ],
+        "content_based_deduplication": [
+            {
+                "description": "Enables content-based deduplication for FIFO topics.",
+                "nullable": true,
+                "type": "bool"
+            }
+        ],
+        "application_failure_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive failure feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "application_success_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive success feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "application_success_feedback_sample_rate": [
+            {
+                "description": "Percentage of success to sample.",
+                "nullable": true,
+                "type": "number"
+            }
+        ],
+
+        "firehose_failure_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive failure feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "firehose_success_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive success feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "firehose_success_feedback_sample_rate": [
+            {
+                "description": "Percentage of success to sample.",
+                "nullable": true,
+                "type": "number"
+            }
+        ],
+        "http_failure_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive failure feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "http_success_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive success feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "http_success_feedback_sample_rate": [
+            {
+                "description": "Percentage of success to sample.",
+                "nullable": true,
+                "type": "number"
+            }
+        ],
+        "lambda_failure_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive failure feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "lambda_success_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive success feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "lambda_success_feedback_sample_rate": [
+            {
+                "description": "Percentage of success to sample.",
+                "nullable": true,
+                "type": "number"
+            }
+        ],
+        "sqs_failure_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive failure feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "sqs_success_feedback_role_arn": [
+            {
+                "description": "The IAM role permitted to receive success feedback for this topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "sqs_success_feedback_sample_rate": [
+            {
+                "description": "Percentage of success to sample.",
+                "nullable": true,
+                "type": "number"
+            }
+        ],
+        "tracing_config": [
+            {
+                "description": "Tracing mode of an Amazon SNS topic.",
+                "nullable": true,
+                "type": "string"
+            }
+        ],
+        "use_custom_kms_key_for_encryption": [
+            {
+                "default": true,
+                "description": "Whether to use a custom KMS key for encryption",
+                "type": "bool"
+            }
+        ],
+        "topic_policy": [
+            {
+                "description": "The IAM policy document of the SNS topic (can be used to allow access to other roles or accounts)",
+                "nullable": true,
+                "type": "string",
+                "default": ""
+            }
+        ],
+        "tags": [
+            {
+                "type": "map(string)",
+                "description": "Key-value map of resource tags.",
+                "nullable": true
+            }
+        ]
+    }
+}
