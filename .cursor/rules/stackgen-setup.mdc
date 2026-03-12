@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 # StackGen Infrastructure Management
 
-This project uses StackGen for infrastructure-as-code management. Use the StackGen MCP tools for all infrastructure operations.
+This project uses StackGen for infrastructure-as-code management. Use the stackgen-mcp-http tools for all infrastructure operations if a tool is not available in the MCP, then you can use the CLI.
 
 ## Project Configuration
 
@@ -77,10 +77,11 @@ stackgen provision \
   --var region=us-east-2 \
   --work-dir ./infrastructure/<stackgen-export-dir> \
   --appstack-id <appstack-id> \
-  --project 60ff09a4-2c58-40a5-a466-d82ac21ec5d7
+  --project 60ff09a4-2c58-40a5-a466-d82ac21ec5d7 \
+  -e demo
 
 **Important notes:**
 - The CLI downloads IaC automatically—no separate download needed.
 - Never apply locally; fix issues in StackGen, not by editing generated files.
-- Skip environment profiles (not used in this project).
+- **Environment profile required:** Provision requires an environment (e.g. `-e demo`). Ensure the appstack has an env profile named `demo` in StackGen, or create one via MCP `create_env_profile` and use that name with `-e`.
 - If validation fails, rerun with `--log 2` for debug output.
