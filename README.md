@@ -47,69 +47,46 @@ PORT - Port number for the HTTP server (default: 8000)
 
 #### Using Docker Compose (Recommended)
 
-The easiest way to run all services locally is using Docker Compose. This will start all services including LocalStack for AWS service emulation:
+The local development flow is **AWS-first** (no LocalStack). Services run in Docker and connect to real AWS resources using your credentials.
 
 ```bash
-# Start all services
-docker-compose up
+# 1) Copy env template and fill in AWS credentials/config
+cp .env.example .env
 
-# Or run in detached mode
-docker-compose up -d
+# 2) Create/ensure AWS resources (DynamoDB/SQS/SNS/SES template)
+make init-aws
 
-# View logs
-docker-compose logs -f
+# 3) Start services
+make dev-up
 
-# Stop all services
-docker-compose down
+# 4) View logs
+make dev-logs
+
+# 5) Stop services
+make dev-down
 ```
 
-This will start:
+Equivalent raw compose commands:
+
+```bash
+docker compose up --build -d
+docker compose logs -f
+docker compose down
+```
+
+This starts:
 - **API Service** on `http://localhost:8000`
 - **Email Summary Worker** on `http://localhost:8001`
 - **Notification Service** on `http://localhost:8002`
 - **Frontend App** on `http://localhost:3000`
-- **LocalStack** (AWS emulator) on `http://localhost:4566`
-
-**Initializing LocalStack Resources**:
-
-Before using the services, you need to initialize LocalStack resources (DynamoDB tables, SQS queues, SNS topics). After starting docker-compose, run:
-
-```bash
-# Make sure LocalStack is running, then initialize resources
-./init-localstack.sh
-```
-
-Or manually initialize using AWS CLI:
-
-```bash
-# Create DynamoDB table
-aws --endpoint-url=http://localhost:4566 dynamodb create-table \
-  --table-name boards \
-  --attribute-definitions AttributeName=id,AttributeType=S \
-  --key-schema AttributeName=id,KeyType=HASH \
-  --billing-mode PAY_PER_REQUEST \
-  --region us-east-1
-
-# Create SQS queue
-aws --endpoint-url=http://localhost:4566 sqs create-queue \
-  --queue-name retroboard-emails \
-  --region us-east-1
-
-# Create SNS topic
-aws --endpoint-url=http://localhost:4566 sns create-topic \
-  --name retroboard-alerts \
-  --region us-east-1
-```
-
-**Note**: Make sure you have AWS CLI installed and configured (credentials can be dummy values for LocalStack).
 
 **Customizing the API URL**:
 
-The frontend app is configured to connect to `http://localhost:8000` by default. To change this, modify the `NEXT_PUBLIC_API_HOST_URL` build argument in `docker-compose.yml` and rebuild the app container:
+Set `NEXT_PUBLIC_API_HOST_URL` in `.env`, then rebuild app container:
 
 ```bash
-docker-compose build app
-docker-compose up
+docker compose build app
+docker compose up -d app
 ```
 
 #### Using Python Directly
@@ -184,7 +161,7 @@ Tests use mocked AWS services (via `moto`) and HTTP clients to verify functional
 
 #### Integration Tests
 
-Integration tests verify that all services work together in a docker-compose environment with LocalStack providing AWS service emulation. These tests run against the full stack to ensure end-to-end functionality.
+Integration tests verify that all services work together in a docker-compose environment. These tests run against the full stack to ensure end-to-end functionality.
 
 **Prerequisites:**
 - Docker and Docker Compose installed
@@ -202,10 +179,10 @@ playwright install chromium
 playwright install-deps chromium
 
 # Start docker-compose services (if not already running)
-docker-compose up -d
+docker compose up -d
 
-# Initialize LocalStack resources
-./init-localstack.sh
+# Initialize AWS resources
+./init-aws.sh
 
 # Run integration tests
 cd tests/integration
@@ -213,8 +190,8 @@ pytest -v -m integration
 ```
 
 The integration tests will:
-- Start all docker-compose services (API, UI, LocalStack)
-- Initialize LocalStack resources (DynamoDB, SQS, SNS, SES)
+- Start all docker-compose services (API + UI)
+- Initialize AWS resources (DynamoDB, SQS, SNS, SES template)
 - Test API endpoints against the running services
 - Test UI smoke tests to verify the frontend loads and can interact with the API
 - Clean up services after tests complete

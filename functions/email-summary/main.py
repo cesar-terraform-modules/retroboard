@@ -7,11 +7,11 @@ from typing import List, Dict, Any
 from botocore.errorfactory import ClientError
 
 SENDER_EMAIL = os.environ["SES_SENDER_EMAIL_ADDRESS"]
-TEMPLATE_NAME = "retroboard-summary"
+TEMPLATE_NAME = os.environ.get("TEMPLATE_NAME", "retroboard-summary")
 
 app = FastAPI()
 
-# Configure SES client with region and endpoint_url for LocalStack
+# Configure SES client with region and optional endpoint override
 aws_region = os.environ.get("AWS_REGION", "us-east-1")
 aws_endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
 
