@@ -64,6 +64,9 @@ make dev-logs
 
 # 5) Stop services
 make dev-down
+
+# 6) Optional: clean up AWS resources created for local dev
+make cleanup-aws
 ```
 
 Equivalent raw compose commands:
