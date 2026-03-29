@@ -1,12 +1,6 @@
 build:
 	sh build-lambda-package.sh
 
-init-aws:
-	./init-aws.sh
-
-cleanup-aws:
-	RETROBOARD_FORCE_DESTROY=1 ./cleanup-aws.sh
-
 dev-up:
 	docker compose up --build -d
 
