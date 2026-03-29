@@ -7,7 +7,7 @@ AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL")
 
 # Get AWS Account ID from environment variable if available, otherwise use STS
 # This allows LocalStack to work without STS service enabled
-if "AWS_ACCOUNT_ID" in os.environ:
+if os.environ.get("AWS_ACCOUNT_ID"):
     _aws_account_id = os.environ["AWS_ACCOUNT_ID"]
 else:
     # Configure STS client with region and endpoint_url for LocalStack
