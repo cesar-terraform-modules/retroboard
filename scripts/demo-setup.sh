@@ -5,6 +5,13 @@ set -euo pipefail
 # Run this BEFORE the demo to ensure the environment is clean and ready.
 # Simulates what the "platform engineering team" has pre-provisioned.
 # Requires: aws cli (authenticated), claude cli, docker
+#
+# Usage:
+#   ./scripts/demo-setup.sh              # defaults to "staging"
+#   ./scripts/demo-setup.sh staging      # stage.dev.stackgen.com
+#   ./scripts/demo-setup.sh main         # main.dev.stackgen.com
+
+STACKGEN_ENV="${1:-staging}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
@@ -13,11 +20,37 @@ ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 STATE_BUCKET="cesar-demo-tfstate-${ACCOUNT_ID}"
 ECR_REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 
+# --- Environment-specific IDs ---
+if [ "${STACKGEN_ENV}" = "main" ]; then
+  STACKGEN_URL="main.dev.stackgen.com"
+  MCP_ADMIN="stackgen-main-dev-admin"
+  MCP_USER="stackgen-main-dev-user"
+  CORE_INFRA_PROJECT_ID="0c40a4fa-1f03-427c-8912-d0527ae991f5"
+  RETROBOARD_PROJECT_ID="32f41853-b8b2-4cf8-ba03-61604521e10c"
+  NETWORK_APPSTACK_ID="82936fc4-aec5-4e8a-a44a-8b0705f90f03"
+  ECR_TEMPLATE_ID="572c024e-8397-495b-a968-5fd8f39f1290"
+elif [ "${STACKGEN_ENV}" = "staging" ]; then
+  STACKGEN_URL="stage.dev.stackgen.com"
+  MCP_ADMIN="stackgen-stage-dev-admin"
+  MCP_USER="stackgen-stage-dev-user"
+  CORE_INFRA_PROJECT_ID="463a9720-a15e-417b-b842-9e2ee12e4e33"
+  RETROBOARD_PROJECT_ID="7260e64b-6a0a-474d-926b-214b2d91391a"
+  NETWORK_APPSTACK_ID=""  # Will be created if needed
+  ECR_TEMPLATE_ID="73a093bf-2407-4ff8-8f78-69e72c79d0e6"
+else
+  echo "ERROR: Unknown environment '${STACKGEN_ENV}'. Use 'main' or 'staging'."
+  exit 1
+fi
+
 echo "============================================="
 echo "  StackGen Demo Setup (Platform Team Side)"
 echo "============================================="
-echo "Account:  ${ACCOUNT_ID}"
-echo "Region:   ${REGION}"
+echo "StackGen:  ${STACKGEN_URL}"
+echo "MCP:       ${MCP_USER}"
+echo "Account:   ${ACCOUNT_ID}"
+echo "Region:    ${REGION}"
+echo "Core-Infra Project: ${CORE_INFRA_PROJECT_ID}"
+echo "Retroboard Project: ${RETROBOARD_PROJECT_ID}"
 echo ""
 
 # --- 1. Verify prerequisites ---
@@ -45,30 +78,48 @@ VPC_COUNT=$(aws ec2 describe-vpcs \
 if [ "${VPC_COUNT}" -gt 0 ]; then
   echo "  Core networking applied (VPC found)"
 else
-  echo "  Applying core networking (network-foundation)..."
-  echo "  This creates VPC, subnets, NAT gateway (~2-3 min)..."
-  claude --print -p "
-Using the StackGen user MCP, apply the network-foundation appstack in the
-cesar-demo-core-infra project (project_id: 0c40a4fa-1f03-427c-8912-d0527ae991f5).
-Use appstack_id 82936fc4-aec5-4e8a-a44a-8b0705f90f03, topology_id same as appstack_id.
-Action type: Apply, environment: dev.
-Wait for completion and show the result.
-" 2>&1 | tail -5
+  echo "  Core networking NOT found."
+  echo "  You need to create and apply the network-foundation appstack."
+  echo ""
+  echo "  In Claude Code, use the ${MCP_USER} MCP tools:"
+  echo ""
+  echo "  1. Create appstack 'network-foundation' in cesar-demo-core-infra"
+  echo "     project_id: ${CORE_INFRA_PROJECT_ID}"
+  echo ""
+  echo "  2. Add crb-networking-basics resource, configure with:"
+  echo "     cidr=var.vpc_cidr, az_count=var.az_count, create_nat_gateway=true,"
+  echo "     enable_flow_logs=false, tags=local.tags"
+  echo ""
+  echo "  3. Add variables (aws_region, vpc_cidr=10.0.0.0/16, az_count=2,"
+  echo "     project=retroboard, environment=dev), locals (tags), provider (aws)"
+  echo ""
+  echo "  4. Create dev env profile with S3 backend:"
+  echo "     bucket=${STATE_BUCKET}, key=core-infra/network-foundation.tfstate"
+  echo ""
+  echo "  5. Apply to dev environment (~2-3 min for NAT gateway)"
+  echo ""
+  echo "  Or run this prompt in Claude Code:"
+  echo '  "Using the '${MCP_USER}' tools, create a network-foundation appstack'
+  echo '   in project '${CORE_INFRA_PROJECT_ID}' with a VPC (10.0.0.0/16, 2 AZs,'
+  echo '   NAT gateway, no flow logs). Add variables, locals, provider, dev env'
+  echo '   profile with S3 backend (bucket '${STATE_BUCKET}','
+  echo '   key core-infra/network-foundation.tfstate), then apply."'
+  echo ""
 fi
 echo ""
 
 # --- 4. Clean up previous demo appstacks ---
 echo "[4/7] Checking for leftover demo appstacks..."
 claude --print -p "
-Using the StackGen user MCP, list all appstacks in the cesar-retroboard-demo
-project (project_id: 32f41853-b8b2-4cf8-ba03-61604521e10c).
-Just list their names -- do NOT delete or destroy anything.
-" 2>/dev/null | grep -E "retroboard-|No appstacks" || echo "  (Could not check)"
+Using the ${MCP_USER} MCP tools, list all appstacks in project
+${RETROBOARD_PROJECT_ID}. Just list their names -- do NOT delete or destroy anything.
+" 2>/dev/null | grep -E "retroboard-|No appstacks|name" | head -10 || echo "  (Could not check)"
 echo ""
-echo "  If old appstacks exist with applied resources, run ./scripts/demo-teardown.sh first"
+echo "  If old appstacks exist with applied resources, run:"
+echo "  ./scripts/demo-teardown.sh ${STACKGEN_ENV}"
 echo ""
 
-# --- 5. Pre-provision ECR repos via StackGen (platform team creates registry appstack) ---
+# --- 5. Pre-provision ECR repos via StackGen ---
 echo "[5/7] Pre-provisioning ECR repositories via StackGen..."
 ECR_EXISTS=$(aws ecr describe-repositories --repository-names "retroboard/api" --region "${REGION}" 2>/dev/null && echo "yes" || echo "no")
 if [ "${ECR_EXISTS}" = "yes" ]; then
@@ -77,11 +128,11 @@ else
   echo "  Creating retroboard-registry appstack and applying..."
   echo "  (This creates 4 ECR repos via StackGen ~30s)"
   claude --print -p "
-Using the StackGen user MCP, check if a retroboard-registry appstack exists in
-the cesar-retroboard-demo project (project_id: 32f41853-b8b2-4cf8-ba03-61604521e10c).
+Using the ${MCP_USER} MCP tools, check if a retroboard-registry appstack exists in
+project ${RETROBOARD_PROJECT_ID}.
 
 If it doesn't exist, create it (cloud_provider: aws, description: ECR container registries).
-Then add 4 ECR repository resources (crb-ecr-repository, template_id: 572c024e-8397-495b-a968-5fd8f39f1290)
+Then add 4 ECR repository resources (crb-ecr-repository, template_id: ${ECR_TEMPLATE_ID})
 with identifiers: ecr_api, ecr_app, ecr_email_summary, ecr_notification.
 
 Configure each with: image_tag_mutable=true, force_delete=true, tags=local.tags.
@@ -92,7 +143,7 @@ an AWS provider (region=var.aws_region), and variables for aws_region (default u
 project (default retroboard), environment (default dev).
 
 Create a dev environment profile with S3 backend:
-bucket=cesar-demo-tfstate-${ACCOUNT_ID}, key=retroboard/registry.tfstate,
+bucket=${STATE_BUCKET}, key=retroboard/registry.tfstate,
 region=us-east-1, dynamodb_table=cesar-demo-tfstate-lock.
 
 Then apply it to the dev environment. Wait for completion.
@@ -144,7 +195,7 @@ docker push -q "${ECR_REGISTRY}/retroboard/notification-service:latest" >/dev/nu
 echo "    pushed"
 echo ""
 
-# --- 7. Summary ---
+# --- 7. Clean up stale locks ---
 echo "[7/7] Cleaning up stale DynamoDB lock entries..."
 for KEY in \
   "retroboard/data.tfstate" \
@@ -163,6 +214,9 @@ echo "============================================="
 echo "  Setup Complete -- Ready for Demo"
 echo "============================================="
 echo ""
+echo "StackGen instance: ${STACKGEN_URL}"
+echo "MCP tools prefix:  ${MCP_USER}"
+echo ""
 echo "Platform team has pre-provisioned:"
 echo "  - VPC + subnets + NAT gateway (network-foundation)"
 echo "  - ECR repositories (4 repos)"
@@ -170,18 +224,9 @@ echo "  - Container images (pre-built and pushed)"
 echo "  - S3 state backend + DynamoDB lock table"
 echo "  - StackGen project, modules, policies, AWS credentials"
 echo ""
-echo "The developer demo starts from a clean slate in the"
-echo "cesar-retroboard-demo project with NO appstacks."
-echo ""
 echo "During the demo, the developer will only need to:"
 echo "  1. Describe their app to the AI"
 echo "  2. Let the AI create appstacks, add resources, configure, plan, apply"
-echo "  3. Rebuild the frontend image with the real ALB URL (one docker command)"
+echo "  3. Rebuild the frontend image with the real ALB URL"
 echo "  4. Open the app in a browser"
-echo ""
-echo "Expected demo apply times (with pre-built images):"
-echo "  - retroboard-data:      ~1 min"
-echo "  - retroboard-messaging: ~10 sec"
-echo "  - retroboard-compute:   ~2 min (ALB + ECS)"
-echo "  Total: ~3-4 min of apply time"
 echo ""

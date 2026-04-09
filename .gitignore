@@ -15,3 +15,4 @@ builds/
 infra/
 build/
 localstack-data/
+.claude/settings.local.json

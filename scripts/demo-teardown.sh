@@ -4,14 +4,34 @@ set -euo pipefail
 # StackGen Demo Teardown Script
 # Destroys all demo infrastructure to avoid ongoing AWS costs.
 # Uses Claude CLI with StackGen MCP to destroy appstacks in reverse dependency order.
+#
+# Usage:
+#   ./scripts/demo-teardown.sh              # defaults to "staging"
+#   ./scripts/demo-teardown.sh staging      # stage.dev.stackgen.com
+#   ./scripts/demo-teardown.sh main         # main.dev.stackgen.com
+
+STACKGEN_ENV="${1:-staging}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REGION="us-east-1"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-echo "=== StackGen Demo Teardown ==="
+# --- Environment-specific IDs ---
+if [ "${STACKGEN_ENV}" = "main" ]; then
+  MCP_USER="stackgen-main-dev-user"
+  RETROBOARD_PROJECT_ID="32f41853-b8b2-4cf8-ba03-61604521e10c"
+elif [ "${STACKGEN_ENV}" = "staging" ]; then
+  MCP_USER="stackgen-stage-dev-user"
+  RETROBOARD_PROJECT_ID="7260e64b-6a0a-474d-926b-214b2d91391a"
+else
+  echo "ERROR: Unknown environment '${STACKGEN_ENV}'. Use 'main' or 'staging'."
+  exit 1
+fi
+
+echo "=== StackGen Demo Teardown (${STACKGEN_ENV}) ==="
+echo "MCP:     ${MCP_USER}"
+echo "Project: ${RETROBOARD_PROJECT_ID}"
 echo "Account: ${ACCOUNT_ID}"
-echo "Region:  ${REGION}"
 echo ""
 echo "This will DESTROY all retroboard demo infrastructure."
 echo "Press Ctrl+C to cancel, or Enter to continue..."
@@ -20,8 +40,8 @@ read -r
 # --- 1. Destroy compute (depends on everything else) ---
 echo "[1/5] Destroying retroboard-compute..."
 claude --print -p "
-Using the StackGen user MCP, find the retroboard-compute appstack in the
-cesar-retroboard-demo project (project_id: 32f41853-b8b2-4cf8-ba03-61604521e10c).
+Using the ${MCP_USER} MCP tools, find the retroboard-compute appstack in
+project ${RETROBOARD_PROJECT_ID}.
 Run a Destroy action on it in the dev environment.
 Use create_appstack_action_run with action_type 'Destroy'.
 Wait for it to complete and show me the result.
@@ -42,8 +62,7 @@ echo ""
 # --- 3. Destroy registry, data, and messaging (parallel-safe) ---
 echo "[3/5] Destroying retroboard-registry, retroboard-data, retroboard-messaging..."
 claude --print -p "
-Using the StackGen user MCP, find these appstacks in the cesar-retroboard-demo
-project (project_id: 32f41853-b8b2-4cf8-ba03-61604521e10c):
+Using the ${MCP_USER} MCP tools, find these appstacks in project ${RETROBOARD_PROJECT_ID}:
 - retroboard-registry
 - retroboard-data
 - retroboard-messaging
@@ -69,6 +88,10 @@ for KEY in \
   "retroboard/compute.tfstate"; do
   echo "  Deleting s3://${BUCKET}/${KEY}"
   aws s3 rm "s3://${BUCKET}/${KEY}" 2>/dev/null || true
+  aws dynamodb delete-item --table-name cesar-demo-tfstate-lock \
+    --key "{\"LockID\": {\"S\": \"${BUCKET}/${KEY}-md5\"}}" 2>/dev/null || true
+  aws dynamodb delete-item --table-name cesar-demo-tfstate-lock \
+    --key "{\"LockID\": {\"S\": \"${BUCKET}/${KEY}\"}}" 2>/dev/null || true
 done
 echo ""
 
