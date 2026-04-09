@@ -7,7 +7,7 @@ AWS_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL")
 
 # Get AWS Account ID from environment variable if available, otherwise use STS
 # This allows LocalStack to work without STS service enabled
-if "AWS_ACCOUNT_ID" in os.environ:
+if os.environ.get("AWS_ACCOUNT_ID"):
     _aws_account_id = os.environ["AWS_ACCOUNT_ID"]
 else:
     # Configure STS client with region and endpoint_url for LocalStack
@@ -20,9 +20,11 @@ else:
 
 AWS_ACCOUNT_ID: Final[str] = _aws_account_id
 
-DYNAMODB_TABLE_NAME: Final[str] = "boards"
-EMAILS_SQS_QUEUE: Final[str] = "retroboard-emails"
-SLACK_ALERTS_SNS_TOPIC: Final[str] = "retroboard-alerts"
+DYNAMODB_TABLE_NAME: Final[str] = os.environ.get("DYNAMODB_TABLE_NAME", "boards")
+EMAILS_SQS_QUEUE: Final[str] = os.environ.get("EMAILS_SQS_QUEUE", "retroboard-emails")
+SLACK_ALERTS_SNS_TOPIC: Final[str] = os.environ.get(
+    "SLACK_ALERTS_SNS_TOPIC", "retroboard-alerts"
+)
 
 SNS_TOPIC_SLACK_ALERTS_ARN: Final[str] = (
     f"arn:aws:sns:{AWS_REGION}:{AWS_ACCOUNT_ID}:{SLACK_ALERTS_SNS_TOPIC}"
