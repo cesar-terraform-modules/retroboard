@@ -6,7 +6,8 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 from botocore.errorfactory import ClientError
 
-SENDER_EMAIL = os.environ["SES_SENDER_EMAIL_ADDRESS"]
+# Default sender so the service can boot without SES wiring (e.g. Shipyard preview).
+SENDER_EMAIL = os.environ.get("SES_SENDER_EMAIL_ADDRESS", "noreply@example.com")
 TEMPLATE_NAME = os.environ.get("TEMPLATE_NAME", "retroboard-summary")
 
 app = FastAPI()

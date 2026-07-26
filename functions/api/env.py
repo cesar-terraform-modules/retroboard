@@ -50,4 +50,8 @@ SQS_SEND_EMAIL_QUEUE_URL: Final[str] = (
     f"https://sqs.{AWS_REGION}.amazonaws.com/{AWS_ACCOUNT_ID}/{EMAILS_SQS_QUEUE}"
 )
 
-CORS_ALLOWED_ORIGINS: Final[str] = os.environ["CORS_ALLOWED_ORIGINS"]
+# Default to localhost so the service can boot without CORS wiring
+# (e.g. Shipyard preview). main.py always appends http://localhost:3000.
+CORS_ALLOWED_ORIGINS: Final[str] = os.environ.get(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000"
+)
