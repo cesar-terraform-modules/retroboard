@@ -27,11 +27,19 @@ FROM nginx:alpine
 COPY --from=builder /app/out /usr/share/nginx/html
 
 # Copy nginx configuration
+# /api proxy is for local compose (Docker DNS); in Shipyard the ingress routes /api
+# straight to the api service. Variable upstream = lazy DNS, so nginx boots anywhere.
 RUN echo 'server { \
     listen 3000; \
     server_name localhost; \
     root /usr/share/nginx/html; \
     index index.html; \
+    location /api/ { \
+        resolver 127.0.0.11 valid=10s; \
+        set $api http://api:8000; \
+        rewrite ^/api/(.*)$ /$1 break; \
+        proxy_pass $api; \
+    } \
     location / { \
         try_files $uri $uri/ /index.html; \
     } \
