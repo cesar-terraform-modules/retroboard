@@ -4,6 +4,8 @@ services:
       context: ./functions/api
       dockerfile: Dockerfile
     container_name: retroboard-api
+    labels:
+      shipyard.route: "/api"
     ports:
       - "8000:8000"
     environment:
@@ -70,6 +72,9 @@ services:
       args:
         NEXT_PUBLIC_API_HOST_URL: ${NEXT_PUBLIC_API_HOST_URL:-http://localhost:8000}
     container_name: retroboard-app
+    labels:
+      shipyard.route: "/"
+      shipyard.primary-route: "true"
     ports:
       - "3000:3000"
     environment:
