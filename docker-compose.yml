@@ -6,6 +6,8 @@ services:
     container_name: retroboard-localstack
     expose:
       - "4566"
+    ports:
+      - "4566:4566"
     environment:
       - SERVICES=dynamodb,sqs,sns,ses
       - AWS_DEFAULT_REGION=us-east-1
