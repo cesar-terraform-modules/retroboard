@@ -107,7 +107,8 @@ services:
       dockerfile: Dockerfile
       args:
         # Same-origin: Shipyard routes /api to the api service; locally nginx proxies it.
-        NEXT_PUBLIC_API_HOST_URL: ${NEXT_PUBLIC_API_HOST_URL:-/api}
+        # Literal on purpose: Shipyard build args can't interpolate ${SHIPYARD_DOMAIN}.
+        NEXT_PUBLIC_API_HOST_URL: /api
     container_name: retroboard-app
     labels:
       shipyard.route: "/"
