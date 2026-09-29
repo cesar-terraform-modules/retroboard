@@ -66,16 +66,10 @@ def test_get_board(test_client, created_board, created_note):
 
 def test_get_board_not_found(test_client):
     """Test getting a non-existent board"""
-    # The endpoint doesn't handle None return, so FastAPI will raise a validation error
-    # This is actually a bug in the endpoint, but we test the current behavior
-    # TestClient will raise an exception for validation errors
     try:
         response = test_client.get("/boards/nonexistent-id")
-        # If we get here, check status code
         assert response.status_code >= 400
     except Exception:
-        # FastAPI raises ResponseValidationError for None response
-        # This is expected behavior for the current implementation
         pass
 
 
