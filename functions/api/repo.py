@@ -209,15 +209,19 @@ class BoardRepo:
 
     def voteOnNote(self, board_id: str, note_id: str):
         table = self.db.Table(DYNAMODB_TABLE_NAME)
-        response = table.update_item(
-            Key={
-                "board_id": board_id,
-                "sk": f"note#{note_id}",
-            },
-            UpdateExpression="set votes = votes + :val",
-            ExpressionAttributeValues={":val": 1},
-            ReturnValues="UPDATED_NEW",
-        )
+        try:
+            response = table.update_item(
+                Key={
+                    "board_id": board_id,
+                    "sk": f"note#{note_id}",
+                },
+                UpdateExpression="set votes = votes + :val",
+                ConditionExpression="attribute_exists(board_id)",
+                ExpressionAttributeValues={":val": 1},
+                ReturnValues="UPDATED_NEW",
+            )
+        except self.db.meta.client.exceptions.ConditionalCheckFailedException:
+            raise NotFoundException("Note not found")
         if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
             return NoteIDAndVoteResponse(
                 id=note_id, votes=response["Attributes"]["votes"]

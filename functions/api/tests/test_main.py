@@ -214,3 +214,13 @@ def test_cors_headers(test_client):
     response = test_client.options("/boards")
     # FastAPI CORS middleware should handle OPTIONS requests
     # The actual CORS headers are added by the middleware
+
+
+def test_vote_on_deleted_note_returns_404(test_client, created_board, created_note):
+    """Voting on a deleted note returns 404 instead of a server error"""
+    board_id, note_id = created_board["id"], created_note["id"]
+    test_client.delete(f"/boards/{board_id}/notes/{note_id}")
+
+    response = test_client.put(f"/boards/{board_id}/notes/{note_id}/vote")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND

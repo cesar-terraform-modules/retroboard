@@ -112,10 +112,15 @@ def update_note(board_id: str, note_id: str, note: NoteBase, response: Response)
 
 
 @app.put(
-    "/boards/{board_id}/notes/{note_id}/vote", response_model=NoteIDAndVoteResponse
+    "/boards/{board_id}/notes/{note_id}/vote",
+    responses={200: {"model": NoteIDAndVoteResponse}, 404: {"model": MessageResponse}},
 )
-def vote_on_note(board_id: str, note_id: str):
-    return repo.voteOnNote(board_id, note_id)
+def vote_on_note(board_id: str, note_id: str, response: Response):
+    try:
+        return repo.voteOnNote(board_id, note_id)
+    except NotFoundException as e:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return MessageResponse(message=e.message)
 
 
 @app.post("/email-summary")
