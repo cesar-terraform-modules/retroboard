@@ -83,6 +83,15 @@ class TestUISmoke:
         page_content = page.content()
         assert len(page_content) > 0, "Board page should have content"
 
+    def test_missing_board_shows_not_found(
+        self, docker_compose, ui_base_url: str, page: Page
+    ):
+        page.goto(f"{ui_base_url}/board.html?id=nonexistent-id-12345")
+
+        expect(
+            page.get_by_text("Board not found. Check the link and try again.")
+        ).to_be_visible()
+
     def test_ui_cors_configuration(
         self, docker_compose, ui_base_url: str, api_base_url: str, page: Page
     ):

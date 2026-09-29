@@ -70,8 +70,8 @@ class TestBoardOperations:
     def test_get_board_not_found(self, docker_compose, api_base_url: str):
         """Test retrieving a non-existent board."""
         response = requests.get(f"{api_base_url}/boards/nonexistent-id-12345")
-        # The endpoint may return 500 or raise an exception, but should not return 200
-        assert response.status_code != 200
+        assert response.status_code == 404
+        assert response.json() == {"detail": "Board not found"}
 
 
 @pytest.mark.integration

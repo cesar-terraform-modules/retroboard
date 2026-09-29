@@ -8,7 +8,15 @@ import IconAttributionText from "../components/icon-attribution-text";
 
 export const BoardContext = createContext();
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const fetcher = async (url) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const error = new Error("Failed to load board");
+    error.status = res.status;
+    throw error;
+  }
+  return res.json();
+};
 
 export default function BoardPage () {
   const searchParams = useSearchParams();
@@ -28,7 +36,9 @@ export default function BoardPage () {
         {error ? (
           <div className="flex items-center justify-center h-screen w-full">
             <span className="text-center text-xl">
-              An error has occurred. Please try again later.
+              {error.status === 404
+                ? "Board not found. Check the link and try again."
+                : "An error has occurred. Please try again later."}
             </span>
           </div>
         ) : isLoading ? (
