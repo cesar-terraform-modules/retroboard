@@ -19,7 +19,9 @@ origins = CORS_ALLOWED_ORIGINS.split(",") + [
     "http://localhost:3000",
 ]
 
-app = FastAPI()
+# Shipyard forwards /api/* without stripping the prefix; Starlette strips root_path
+# when present, so both /api/boards and /boards route correctly.
+app = FastAPI(root_path=os.environ.get("ROOT_PATH", ""))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
