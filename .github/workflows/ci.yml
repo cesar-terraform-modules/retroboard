@@ -95,7 +95,7 @@ jobs:
 
     - name: Start docker-compose services
       run: |
-        docker-compose up -d
+        docker-compose -f docker-compose.yml -f .github/docker-compose.ci.yml up -d
 
     - name: Wait for services to be ready
       run: |
@@ -113,4 +113,4 @@ jobs:
     - name: Stop docker-compose services
       if: always()
       run: |
-        docker-compose down -v
+        docker-compose -f docker-compose.yml -f .github/docker-compose.ci.yml down -v
