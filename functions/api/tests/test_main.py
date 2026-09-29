@@ -66,11 +66,9 @@ def test_get_board(test_client, created_board, created_note):
 
 def test_get_board_not_found(test_client):
     """Test getting a non-existent board"""
-    try:
-        response = test_client.get("/boards/nonexistent-id")
-        assert response.status_code >= 400
-    except Exception:
-        pass
+    response = test_client.get("/boards/nonexistent-id")
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Board not found"}
 
 
 def test_get_notes(test_client, created_board, created_note):

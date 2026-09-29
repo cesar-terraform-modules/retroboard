@@ -2,7 +2,7 @@ import os
 import re
 from typing import List
 import boto3
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, HTTPException, Response, status
 from errors import NotFoundException, ServerErrorException
 import logging
 from models import *
@@ -78,7 +78,12 @@ def create_note(board_id: str, note: NoteBase):
 
 @app.get("/boards/{board_id}", response_model=Board)
 def get_board(board_id: str):
-    return repo.getBoard(board_id)
+    board = repo.getBoard(board_id)
+    if board is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Board not found"
+        )
+    return board
 
 
 @app.get("/boards/{board_id}/notes", response_model=List[Note])

@@ -21,6 +21,8 @@ The application consists of three microservices:
 
 All services are containerized and can be deployed to AWS ECS. Each service runs as a long-running HTTP server using Uvicorn.
 
+`GET /boards/{board_id}` returns HTTP 404 with `{"detail": "Board not found"}` when the board does not exist.
+
 ### Environment Variables
 
 #### API Service (`functions/api/`)
